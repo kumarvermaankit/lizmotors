@@ -207,7 +207,7 @@ function updateLocation(currentLocation,result) {
 
 // Check for network and whether data is coming or not and calculating and checking whether user reaches expected point after passing through a area with network disturbance
 async function Checker(currentLocation, accuracy, line,result) {
-    // retrieving data
+   
 
     
     if (networkflag === true && currentLocation && accuracy <0.3) {
