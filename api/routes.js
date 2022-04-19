@@ -1,68 +1,25 @@
 const router = require("express").Router()
 const readXlsxFile = require('read-excel-file/node')
-// const fetch = require('node-fetch')
 const axios = require('axios')
 
-const data = require("./metro.json");
+const data = require("./metro.json");// retrieving data from JSON file.
 
 const {PythonShell} = require("python-shell")
 
-// import {PythonShell} from 'python-shell';
-const allData = new Object();
+const allData = new Object(); // to store data at all coordinates
 
 var currentLine = ""
-// 15-21
-// minutes between each metro
-
-function VerifyPoint(){
-    let options = {
-        // mode: 'text',
-        // pythonPath: 'path/to/python',
-        // pythonOptions: ['-u'], // get print results in real-time
-        // scriptPath: 'E:/pyshell',
-        // args: ['value1', 'value2', 'value3']
-      };
-      
-      PythonShell.run('verify_point.py', options,function (err, results) {
-        if (err) throw err;
-        // results is an array consisting of messages collected during execution
-        console.log('results: %j', results);
-      });
 
 
-   
-}
 
-function CreateBoundary(longitude,latitude){
+var paths = new Object();  // to store expected shortest route, with corresponding lines , ex: Rithala:red
+var pathsArray = []       // for storing each metro stations name to access them with index
 
-    var coorArray = [] 
-
-    let options = {
-        // mode: 'text',
-        // pythonPath: 'path/to/python',
-        // pythonOptions: ['-u'], // get print results in real-time
-        // scriptPath: 'E:/pyshell',
-        args: [latitude, longitude]
-      };
-
-    PythonShell.run('boundary.py', options,async function (err, results) {
-        if (err) throw err;
-        // results is an array consisting of messages collected during execution
-        console.log('results: %j', results);
-        coorArray = await results
-      });
-
-      return coorArray
-
-}
-
-VerifyPoint()
-const T = CreateBoundary("sjkja","jbhb")
-console.log(T)
+var locationCheckStatus = new Object() // store whether user location matches corresponding expected metro station. ex: huda:true
 
 
-var paths = new Object();
-var pathsArray = []
+
+// Data of time between two consecutive metro station in minutes in each line
 
 const metroLineTimings = {
     Blue: 2.02,
@@ -79,18 +36,24 @@ const metroLineTimings = {
     Aqua: 2.86,
     Grey: 2.10,
     RapidMetro: 5.2,
+    Interchange: 6
 }
 
-var stationsbyName = new Object();
-var stationsbyCoor = new Object();
+var stationsbyName = new Object(); // to store data of stations by name with their long & lat
+var stationsbyCoor = new Object(); // to store data of stations by name with their long & lat
 var networkflag = false
 
-var i = 0;
+// var i = 0;
 var currentPosition = {
     lat: "",
-    lon: ""
+    lon: "",
+    station:"",
+    idx:0,
+    time:""
 }
 
+
+// Mapping of data in object with key station name
 
 data.map((each) => {
     var values = {
@@ -105,6 +68,8 @@ data.map((each) => {
     stationsbyName[each.name.toLowerCase()] = values
     i++;
 })
+
+// Mapping of data in object with key station coordinates
 
 
 data.map((each) => {
@@ -122,17 +87,29 @@ data.map((each) => {
     i++;
 })
 
-// console.log(hash)
+
+
+// to return only unique values in an array
+function uniqueArray3(a) {
+    function onlyUnique(value, index, self) { 
+        return self.indexOf(value) === index;
+    }
+  
+    
+    var unique = a.filter( onlyUnique ); 
+  
+    return unique;
+  }
 
 
 
- 
-axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=Munirka&to=Mandi House')
+// Return the expected route between initial station and final station
+axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=Hauzkhas&to=Mandi House')
     .then((res) => {
         
         var i = 0;
         
-        var lines = []
+        var lines = [] 
 
         var j = 1;
 
@@ -182,8 +159,11 @@ axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=M
 
 
 
-//moving average
 
+
+
+// To check whether speed of metro follows trend or nor
+// Trend : 0->increases -> reaches a max -> decrease -> 0
 
 function trendChecker(array) {
 
@@ -208,41 +188,44 @@ function trendChecker(array) {
 }
 
 var totalTimeElapsed = 0;
+
+// to store the difference between expected time and arrival time
 var timeDeviation = []
 
 
-function updateLocation(currentLocation) {
+// Updation of Location of user
+
+function updateLocation(currentLocation,result) {
     currentPosition.lat = currentLocation.latitude
     currentPosition.lon = currentLocation.longitude
+
     currentPosition.station = currentLocation.station
     currentPosition.idx = currentLocation.idx
     currentPosition.time = currentLocation.time
 }
 
-async function Checker(currentLocation, accuracy, idx, line) {
+
+// Check for network and whether data is coming or not and calculating and checking whether user reaches expected point after passing through a area with network disturbance
+async function Checker(currentLocation, accuracy, line,result) {
     // retrieving data
 
-    //
+    
     if (networkflag === true && currentLocation && accuracy <0.3) {
-        var noOfStationsPassed = (currentPosition.idx - idx);
+        var noOfStationsPassed = (currentPosition.idx - currentLocation.idx);
         
         totalTimeElapsed = metroLineTimings[line] * noOfStationsPassed
         var currentTime = Date.parse(new Date())
-        timeDeviation.push(currentTime - currentPosition.time)
+        timeDeviation.push(currentTime - (currentPosition.time + totalTimeElapsed))
         networkflag = false
         updateLocation(currentLocation)
 
     }
 
 
-    //
-
-
-
-    // 0 ->1,2 3,4,5 6,7  8
+    
 
     if (currentLocation && accuracy < 0.3) {
-        updateLocation(currentLocation)
+        updateLocation(currentLocation,result)
         networkflag = false
     }
     else {
@@ -252,36 +235,24 @@ async function Checker(currentLocation, accuracy, idx, line) {
 
 
 
-    //else
-
-    // whether data is coming or not, if not then
+  
 }
 
 
 
 
-// [0, 23, 45, 67, 30, 67, 34, 22, 10, 0]
-
-var idx = 0
 
 
 
 
 
-// [
-//     true,
-//     '2022-02-14 20:43:13',
-//     28.542204,
-//     77.229028,
-//     227.7620735168457,
-//     '0.0 km/h',
-//     '28.542204°, 77.229028°',
-//     'batteryLevel=100.0  distance=24.8  totalDistance=24322.03  motion=false'
-//   ],
+
+
+
  
-var currentStation = pathsArray[0]
-var currentLine = paths[pathsArray[0]]
-var currentInterval = metroLineTimings[currentLine]
+var currentStation = pathsArray[0] // currentstation of user and initialized with starting station
+var currentLine = paths[pathsArray[0]] // currentline of user and initialized with intial metro line
+var currentInterval = metroLineTimings[currentLine] //currentInterval between metro stations
 
 function gps2(){
     readXlsxFile("./GPS-DATA.xlsx").then((rows)=>{
@@ -290,9 +261,9 @@ function gps2(){
         var currentIndex= 0
 
         var ob = {}
-        var i = 1000;
+        var i = 1000; 
 
-        var speeds = []
+        var speeds = [] // to store different speeds of metro between stations
         
 
 
@@ -300,44 +271,81 @@ function gps2(){
             
             speeds.push(rows[i][5])
 
+
+            // retrieving data of current longitude and latitude
             axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${rows[i][3]},${rows[i][2]}.json?types=poi&access_token=pk.eyJ1IjoiZGFya3NpZGVyNTEiLCJhIjoiY2wwZHl6NXY4MGR2NzNjbXo5ZTBtZGE4eSJ9._xuts111DHQXPl5CflCMiQ`)
             .then((res)=>{
-                // console.log(res.data)
+               
               allData[rows[i][3]+"_"+rows[i][2]] = res.data.features.text
                 ob = res.data;
             })   
 
 
-            if (Number(rows[i][5].substring(0, 3)) >= 0 && Number(rows[i][5].substring(0, 3)) <= 1.5) {
-                const result = trendChecker(speeds)
-                console.log(result)
-                speeds = []
-            }
-//   currentPosition.lat = currentLocation.latitude
-// currentPosition.lon = currentLocation.longitude
-// currentPosition.station = currentLocation.station
-// currentPosition.idx = currentLocation.idx
-// currentPosition.time = currentLocation.time
+            
 
             setTimeout(()=>{
 
-                currentPosition++
+                const result = trendChecker(speeds) // Checking whether speed follows expected trend
+                console.log(result)
+                speeds = []
+
+                currentIndex++
 
                 currentStation = pathsArray[currentIndex]
                 currentLine = paths[pathsArray[currentIndex]]
                 currentInterval = metroLineTimings[currentIndex]
                 
-                CreateBoundary(stationsbyName[currentStation].longitude,stationsbyName[currentStation].latitude)
 
-                var cL = {
-                lat : rows[i][3],
-                lon : rows[i][2],
-                // station : res.data.features.text,
-                // idx : pathsArray.indexOf(res.data.features.text),
-                
+                // Passing expected station's longitude and latitude
+                let options = {
+                  
+                    args: [stationsbyName[currentStation].latitude, stationsbyName[currentStation].longitude]
+                  };
+            
+                // Running the script for boundary/polygon creation based on coordinates
+                PythonShell.run('boundary.py', options, function (err, results) {
+                    if (err) throw err;
+                    console.log('results: %j', results);
+                    
 
-                }
+                    // passing polygon coordinates array
+                    let options2 = {
+                       
+                        args: [rows[i][3], rows[i][2], results]
+                      };
+                      
+                    // Verifying whether current points lie inside expected polygon surrounding metro station 
+                      PythonShell.run('verify_point.py', options2,function (err, results2) {
+                        if (err) throw err;
+                        console.log('results: %j', results2);
+                        locationCheckStatus.push(results2)
+
+
+                        var newTime = Date.parse(new Date())
+
+                        var CL ={
+                            latitude:rows[i][3],
+                            longitude:rows[i][2],
+                            station: ob.features.text,
+                            idx:currentIndex,
+                            time:newTime
+
+                           }
+
+                           Checker(CL,0.3,currentLine,results2) // Checker function created on line 198.
+                      });
+                  });
+
+
+                    
+                currentIndex++
             },currentInterval)
+
+
+           
+
+
+            
 
 
             i++
@@ -356,108 +364,10 @@ function gps2(){
 gps2()
 
 
-function gps() {
-    readXlsxFile("./GPS-DATA.xlsx").then((rows) => {
-        // `rows` is an array of rows
-        // each row being an array of cells.
-
-        //Sending rows to client server
-        // res.status(200).json(rows)
-
-        var speeds = [];
-        
-
-        var i = 1000;
-
-        
-        var CheckTimer = 0;
-        setInterval(() => {
-
-            // console.log(rows[i])
-            speeds.push(rows[i][5])
-            var ob = {
-                lat: rows[i][2],
-                lon: rows[i][3],
-
-            }
-           
-
-            
-
-            var result = {}
-
-            axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${rows[i][3]},${rows[i][2]}.json?types=poi&access_token=pk.eyJ1IjoiZGFya3NpZGVyNTEiLCJhIjoiY2wwZHl6NXY4MGR2NzNjbXo5ZTBtZGE4eSJ9._xuts111DHQXPl5CflCMiQ`)
-            .then((res)=>{
-                console.log(res.data.features.text)
-              allData[rows[i][3]+"_"+rows[i][2]] = res.data.features.text
-                result = res.data;
-            })    
-
-            
-            
-            if (Number(rows[i][5].substring(0, 3)) >= 0 && Number(rows[i][5].substring(0, 3)) <= 1.5) {
-                const result = trendChecker(speeds)
-                console.log(speeds)
-                console.log(result)
-                speeds = []
-            }
-//
-            if(CheckTimer % 8 === 0){
-                ob["station"] = res.data.features.text
-                ob["time"] = Date.parse(new Date())
-                Checker(ob,1,idx)
-            }
-
-            i++;
-            CheckTimer++;
-        }, 1500)
-  
-
-    })
-}
-
-// gps()
-
-
-// gps()
-
-// router.get("/", (req, res, next) => {
-
-//     // Reading excel file
-//     readXlsxFile("./GPS-DATA.xlsx").then((rows) => {
-//         // `rows` is an array of rows
-//         // each row being an array of cells.
-
-//         //Sending rows to client server
-//         res.status(200).json(rows)
-
-//         var speeds = [];
-//         var currentspeed = 0;
-
-//         console.log(rows)
-
-//     })
-
-
-
-// })
-
-
-//Magenta Line
 
 
 
 
-function uniqueArray3(a) {
-    function onlyUnique(value, index, self) { 
-        return self.indexOf(value) === index;
-    }
-  
-    // usage
-    var unique = a.filter( onlyUnique ); // returns ['a', 1, 2, '1']
-  
-    return unique;
-  }
 
 
  
