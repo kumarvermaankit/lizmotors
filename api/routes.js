@@ -6,6 +6,9 @@ const data = require("./metro.json");// retrieving data from JSON file.
 
 const {PythonShell} = require("python-shell")
 
+
+async function Main(){
+
 const allData = new Object(); // to store data at all coordinates
 
 var currentLine = ""
@@ -55,9 +58,11 @@ var currentPosition = {
 
 // Mapping of data in object with key station name
 
+var stationID = 0
+
 data.map((each) => {
     var values = {
-        "id": i,
+        "id":stationID,
         "line": each.details.line,
         "layout": each.details.layout,
         "longitude": each.details.longitude,
@@ -66,15 +71,17 @@ data.map((each) => {
     }
 
     stationsbyName[each.name.toLowerCase()] = values
-    i++;
+    stationID++;
 })
+
 
 // Mapping of data in object with key station coordinates
 
+var coorID = 0;
 
 data.map((each) => {
     var values = {
-        "id": i,
+        "id": coorID,
         "name": each.name,
         "line": each.details.line,
         "layout": each.details.layout,
@@ -84,7 +91,7 @@ data.map((each) => {
     }
 
     stationsbyCoor[each.details.latitude + "_" + each.details.longitude] = values
-    i++;
+    coorID++;
 })
 
 
@@ -104,9 +111,11 @@ function uniqueArray3(a) {
 
 
 // Return the expected route between initial station and final station
-axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=Hauzkhas&to=Mandi House')
-    .then((res) => {
+const res = await axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=Hauz Khas&to=Mandi House')
+    if(res) {
         
+        // console.log(res)
+
         var i = 0;
         
         var lines = [] 
@@ -128,7 +137,7 @@ axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=H
         }
       
         lines = uniqueArray3(lines)
-        console.log(lines)
+        // console.log(lines)
         
             
            while(i<=lines.length-1){
@@ -137,12 +146,12 @@ axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=H
                 
                 if(each == res.data.interchange[i]){
                 paths[each] = "interchange"
-                pathsArray.push(lines[i])
+                pathsArray.push(each)
                 i++;
                 }
                 else{
                     paths[each] = lines[i]
-                    pathsArray.push(lines[i])
+                    pathsArray.push(each)
                 }
                 
 
@@ -153,7 +162,7 @@ axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=H
            }
 
          
-            })
+            }
 
 
 
@@ -208,6 +217,7 @@ function updateLocation(currentLocation,result) {
 // Check for network and whether data is coming or not and calculating and checking whether user reaches expected point after passing through a area with network disturbance
 async function Checker(currentLocation, accuracy, line,result) {
    
+// munirka -> shankar vihar
 
     
     if (networkflag === true && currentLocation && accuracy <0.3) {
@@ -215,6 +225,9 @@ async function Checker(currentLocation, accuracy, line,result) {
         
         totalTimeElapsed = metroLineTimings[line] * noOfStationsPassed
         var currentTime = Date.parse(new Date())
+
+
+
         timeDeviation.push(currentTime - (currentPosition.time + totalTimeElapsed))
         networkflag = false
         updateLocation(currentLocation)
@@ -249,13 +262,17 @@ async function Checker(currentLocation, accuracy, line,result) {
 
 
 
- 
+//  console.log(pathsArray)
 var currentStation = pathsArray[0] // currentstation of user and initialized with starting station
 var currentLine = paths[pathsArray[0]] // currentline of user and initialized with intial metro line
 var currentInterval = metroLineTimings[currentLine] //currentInterval between metro stations
 
+
+
 function gps2(){
+    var lastTime = Date.parse(new Date())
     readXlsxFile("./GPS-DATA.xlsx").then((rows)=>{
+        
         
 
         var currentIndex= 0
@@ -264,11 +281,13 @@ function gps2(){
         var i = 1000; 
 
         var speeds = [] // to store different speeds of metro between stations
-        
+         
 
 
         setInterval(()=>{
             
+            console.log(rows[i])
+
             speeds.push(rows[i][5])
 
 
@@ -280,23 +299,25 @@ function gps2(){
                 ob = res.data;
             })   
 
-
             
-
-            setTimeout(()=>{
+            
+            var cTime = Date.parse(new Date())
+            if(cTime - lastTime == currentInterval * 60000){
 
                 const result = trendChecker(speeds) // Checking whether speed follows expected trend
-                console.log(result)
+                console.log(result,"Speeds Result")
                 speeds = []
 
                 currentIndex++
-
+                
                 currentStation = pathsArray[currentIndex]
                 currentLine = paths[pathsArray[currentIndex]]
                 currentInterval = metroLineTimings[currentIndex]
-                
+                console.log(currentStation)
+                if(stationsbyName[currentStation]!==undefined){
 
-                // Passing expected station's longitude and latitude
+                    
+                
                 let options = {
                   
                     args: [stationsbyName[currentStation].latitude, stationsbyName[currentStation].longitude]
@@ -305,20 +326,21 @@ function gps2(){
                 // Running the script for boundary/polygon creation based on coordinates
                 PythonShell.run('boundary.py', options, function (err, results) {
                     if (err) throw err;
-                    console.log('results: %j', results);
+                    // console.log('results: %j', results);
                     
 
                     // passing polygon coordinates array
+                    
                     let options2 = {
                        
                         args: [rows[i][3], rows[i][2], results]
                       };
                       
-                    // Verifying whether current points lie inside expected polygon surrounding metro station 
+                // Verifying whether current points lie inside expected polygon surrounding metro station 
                       PythonShell.run('verify_point.py', options2,function (err, results2) {
                         if (err) throw err;
-                        console.log('results: %j', results2);
-                        locationCheckStatus.push(results2)
+                        console.log('results2: %j', results2);
+                        // locationCheckStatus.push(results2)
 
 
                         var newTime = Date.parse(new Date())
@@ -336,10 +358,11 @@ function gps2(){
                       });
                   });
 
-
-                    
+                }
+                lastTime = cTime
+              
                 currentIndex++
-            },currentInterval)
+            }
 
 
            
@@ -350,7 +373,7 @@ function gps2(){
 
             i++
 
-        },1500)
+        },15000)
 
 
         
@@ -363,11 +386,11 @@ function gps2(){
 
 gps2()
 
+}
 
 
 
-
-
+Main()
 
 
  

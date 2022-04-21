@@ -3,7 +3,6 @@ import sys
 
 latitide = sys.argv[1]
 longitude = sys.argv[2]
-print(longitude)
 
 lat, lon, res = 28.459841396316087, 77.07269457671096, 12
 
