@@ -1529,5 +1529,280 @@
             "longitude": 77.26792,
             "latitude": 28.62331
         }
+    },
+    {
+        "name": "Janakpuri West",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.0776940796179,
+            "latitude": 28.6297834612038
+        }
+    },
+    {
+        "name": "Dabri Mor",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.0851987905795,
+            "latitude": 28.6159564861556
+        }
+    },
+    {
+        "name": "Dashrathpuri",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.0826940403147,
+            "latitude": 28.6024673324942
+        }
+    },
+    {
+        "name": "Palam",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.082994447627,
+            "latitude": 28.5899197905856
+        }
+    },
+    {
+        "name": "Sadar Bazar Cantonment",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.1113060419964,
+            "latitude": 28.5777751058903
+        }
+    },
+    {
+        "name": "IGI Airport Terminal 1",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.1224616476836,
+            "latitude": 28.5656541796848
+        }
+    },
+    {
+        "name": "Shankar Vihar",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.140341237451,
+            "latitude": 28.5608811110548
+        }
+    },
+    {
+        "name": "Vasant Vihar",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.1609827694922,
+            "latitude": 28.557925961712
+        }
+    },
+    {
+        "name": "Munirka",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.174046892439,
+            "latitude": 28.5580423572399
+        }
+    },
+    {
+        "name": "RK Puram",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.1852115824157,
+            "latitude": 28.5503114738711
+        }
+    },
+    {
+        "name": "IIT Delhi",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.1938027232322,
+            "latitude": 28.5471937628216
+        }
+    },
+    {
+        "name": "Hauz Khas ",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2053582322162,
+            "latitude": 28.5434774222149
+        }
+    },
+    {
+        "name": "Panchsheel Park",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2204900311667,
+            "latitude": 28.5423484614174
+        }
+    },
+    {
+        "name": "Chirag Delhi",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2293798189428,
+            "latitude": 28.5412425337959
+        }
+    },
+    {
+        "name": "Greater Kailash",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2382024764913,
+            "latitude": 28.5418624769814
+        }
+    },
+    {
+        "name": "Nehru Enclave",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2511576999558,
+            "latitude": 28.5458880083749
+        }
+    },
+    {
+        "name": " Kalkaji Mandir",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2565918554361,
+            "latitude": 28.5503080443963
+        }
+    },
+    {
+        "name": "Okhla NSIC",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2648317676421,
+            "latitude": 28.55479188199
+        }
+    },
+    {
+        "name": "Sukhdev Vihar",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2747188135864,
+            "latitude": 28.5595514879644
+        }
+    },
+    {
+        "name": "Jamia Millia Islamia",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2863170790844,
+            "latitude": 28.5630027634972
+        }
+    },
+    {
+        "name": "Okhla Vihar",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2920845226246,
+            "latitude": 28.5615276353709
+        }
+    },
+    {
+        "name": "Jasola Vihar",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.2964764987725,
+            "latitude": 28.5459748080479
+        }
+    },
+    {
+        "name": "Kalindi Kunj",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.3101028762629,
+            "latitude": 28.542912703242
+        }
+    },
+    {
+        "name": "Okhla Bird Sanctuary",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.3230637795121,
+            "latitude": 28.5532678268239
+        }
+    },
+    {
+        "name": "Botanical Garden",
+        "details": {
+            "line": [
+                "Magenta Line"
+            ],
+            "layout": "Underground",
+            "longitude": 77.3357711688027,
+            "latitude": 28.5640950792416
+        }
     }
 ]
