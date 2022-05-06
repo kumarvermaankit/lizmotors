@@ -8,19 +8,22 @@ import axios from "axios"
 
 function App() {
 
-
+  
 
   const [time, settime] = useState("00:00:00")
   const [speed, setspeed] = useState("0 KMPH")
   const [altitude, setaltitude] = useState("0 m")
   const [interval, setinterval] = useState(500);
-
+  const [stations,setstations] = useState({
+    from:"",
+    to:""
+  })
   useEffect(async () => {
 
     //Fetching data from backend
-    const excelData = await axios.get("http://localhost:5000/api")
-
-
+    const excelData = await axios.get("https://locationtracker9.herokuapp.com/api")
+    // const excelData = await axios.get(`http://localhost:5000/path/${stations.from}/${stations.to}`)
+    
 
     // Creating an instance of mapbox
     mapboxgl.accessToken = 'pk.eyJ1IjoiZGFya3NpZGVyNTEiLCJhIjoiY2wwZHl6NXY4MGR2NzNjbXo5ZTBtZGE4eSJ9._xuts111DHQXPl5CflCMiQ';
@@ -72,14 +75,15 @@ function App() {
           settime(excelData.data[i][1])
           setspeed(excelData.data[i][5])
           setaltitude(excelData.data[i][4])
-          if (i > 500) {
+          // if (i > 500) {
             map.jumpTo({ 'center': [excelData.data[i][3], excelData.data[i][2]], 'zoom': 14 });
 
-          }
-          if (i === excelData.data.length - 1) {
-            map.jumpTo({ 'zoom': 10.75 });
+      
+            // }
+          // if (i === excelData.data.length - 1) {
+          //   map.jumpTo({ 'zoom': 10.75 });
 
-          }
+          // }
 
           data.features[0].geometry.coordinates.push([excelData.data[i][3], excelData.data[i][2]]);
           map.getSource('trace').setData(data);
@@ -100,7 +104,10 @@ function App() {
 
 
 
-
+async function getRoute(){
+  const a = await axios.get(`http://localhost:5000/path/${stations.from}/${stations.to}`)
+  console.log(a)
+}
 
 
 
@@ -112,6 +119,16 @@ function App() {
     setinterval(e.target.value)
   }
 
+  function addStation(event){
+
+    setstations((prev)=>{
+      return{
+        ...prev,
+        [event.target.name] : event.target.value
+      }
+    })
+
+  }
 
   return (
     <div className="App">
@@ -132,8 +149,14 @@ function App() {
 
       <div style={{ display: "flex" }}>
         <div id="map"></div>
-
-        <div className='attributes'>
+      <div>
+      <label>Boarding Station</label>
+      <input onChange={(event)=>addStation(event)} name="from" />
+      <label>Destination Station</label>
+      <input onChange={(event)=>addStation(event)} name="to" />
+      <button onClick={getRoute}>Submit</button>
+      </div>
+        {/* <div className='attributes'>
 
           <div id="attribute">
             <h2>TIME</h2>
@@ -147,7 +170,7 @@ function App() {
             <h2>Altitude</h2>
             <p>{altitude}</p>
           </div>
-        </div>
+        </div> */}
       </div>
 
     </div>
