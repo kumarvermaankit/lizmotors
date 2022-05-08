@@ -42,11 +42,11 @@ router.get("/:from/:to",async (req,res,next)=>{
 
         console.log(result)
 
-        var i = 0;
+        // var i = 0;
 
-        var lines = []
+        // var lines = []
 
-        var j = 1;
+        // var j = 1;
 
         for(var k = 0;k<result.data.path.length;k++){
             var each = result.data.path[k]
