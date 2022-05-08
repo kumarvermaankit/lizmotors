@@ -4,15 +4,15 @@ const cors = require("cors")
 
 const port = process.env.PORT || 5000
 
-const router = require("./routes")
-
+// const routes = require("./routes")
+const routeFinder = require("./controllers/routeFinder")
 // Allowing Cross origin request
 app.use(cors())
 
 
-app.use("/api", router)
+// app.use("/api", routes)
 
-
+app.use("/path",routeFinder)
 
 // Listening the port
 app.listen(port, () => {

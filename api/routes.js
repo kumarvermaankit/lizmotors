@@ -2,9 +2,9 @@ const router = require("express").Router()
 const readXlsxFile = require('read-excel-file/node')
 const axios = require('axios')
 
-const data = require("./metro.json");// retrieving data from JSON file.
 
 const { PythonShell } = require("python-shell")
+const data = require("../metro-coordinates.json");// retrieving data from JSON file.
 
 // 25 - 85
 // 0 - 7
@@ -78,6 +78,8 @@ async function Main() {
     })
 
 
+    
+
     // Mapping of data in object with key station coordinates
 
     var coorID = 0;
@@ -117,7 +119,7 @@ async function Main() {
     const res = await axios.get('https://us-central1-delhimetroapi.cloudfunctions.net/route-get?from=Botanical Garden&to=Shankar Vihar')
     if (res) {
 
-        // console.log(res)
+        console.log(res)
 
         var i = 0;
 
@@ -266,15 +268,16 @@ async function Main() {
     async function Checker(currentLocation, accuracy, line, result) {
 
         // munirka -> shankar vihar
-
+            
         if (networkflag === true && currentLocation && accuracy < 0.3) {
             var noOfStationsPassed = (currentPosition.idx - currentLocation.idx);
 
             totalTimeElapsed = metroLineTimings[line] * noOfStationsPassed
             var currentTime = Date.parse(new Date())
+//2:10
 
-
-
+//2:04 + 6.02
+//2:10:02
             timeDeviation.push(currentTime - (currentPosition.time + totalTimeElapsed))
             networkflag = false
             updateLocation(currentLocation)
@@ -347,6 +350,7 @@ async function Main() {
 
                 var cTime = Date.parse(new Date())
                 console.log(cTime - lastTime, currentInterval * 60000)
+                
                 if (cTime - lastTime >= currentInterval * 60000) {
 
                     const result = trendCheck(speeds) // Checking whether speed follows expected trend
